@@ -473,3 +473,93 @@ Matter.Events.on(engine, "beforeUpdate", function () {
     }
 
 });
+
+
+// =========================
+// 적 생성
+// =========================
+
+const enemy = Bodies.circle(
+    150,
+    window.innerHeight - 120,
+    22,
+    {
+        restitution: 0.2,
+        render: {
+            fillStyle: "red"
+        }
+    }
+);
+
+World.add(world, enemy);
+
+
+// 적이 플레이어를 따라오기
+
+Matter.Events.on(engine, "beforeUpdate", () => {
+
+    if (enemy.position.x < body.position.x) {
+
+        Body.applyForce(enemy, enemy.position, {
+            x: 0.002,
+            y: 0
+        });
+
+    } else {
+
+        Body.applyForce(enemy, enemy.position, {
+            x: -0.002,
+            y: 0
+        });
+
+    }
+
+});
+
+
+
+// =========================
+// 적 공격(넉백)
+// =========================
+
+let lastAttack = 0;
+
+Events.on(engine, "beforeUpdate", () => {
+
+    const dx = body.position.x - enemy.position.x;
+    const dy = body.position.y - enemy.position.y;
+
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    // 가까우면 공격
+    if (distance < 70 && Date.now() - lastAttack > 800) {
+
+        lastAttack = Date.now();
+
+        const power = 0.05;
+
+        Body.applyForce(body, body.position, {
+            x: dx > 0 ? power : -power,
+            y: -0.03
+        });
+
+        // 팔도 같이 흔들림
+        Body.applyForce(leftArm, leftArm.position, {
+            x: dx > 0 ? power / 3 : -power / 3,
+            y: -0.01
+        });
+
+        Body.applyForce(rightArm, rightArm.position, {
+            x: dx > 0 ? power / 3 : -power / 3,
+            y: -0.01
+        });
+
+        // 머리도 흔들림
+        Body.applyForce(head, head.position, {
+            x: dx > 0 ? power / 4 : -power / 4,
+            y: -0.01
+        });
+
+    }
+
+});
