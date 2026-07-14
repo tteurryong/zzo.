@@ -98,9 +98,6 @@ World.add(world, [
 // 졸라맨 생성
 // =========================
 
-const {
-    Constraint
-} = Matter;
 
 const startX = window.innerWidth / 2;
 const startY = 180;
@@ -217,11 +214,6 @@ World.add(world, [
 // =========================
 // 마우스로 잡기
 // =========================
-
-const {
-    Mouse,
-    MouseConstraint
-} = Matter;
 
 const mouse = Mouse.create(render.canvas);
 
