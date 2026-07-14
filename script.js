@@ -8,7 +8,11 @@ const {
     Render,
     Runner,
     World,
-    Bodies
+    Bodies,
+    Body,
+    Constraint,
+    Mouse,
+    MouseConstraint
 } = Matter;
 
 // 엔진 생성
@@ -208,3 +212,56 @@ World.add(world, [
     })
 
 ]);
+
+
+// =========================
+// 마우스로 잡기
+// =========================
+
+const {
+    Mouse,
+    MouseConstraint
+} = Matter;
+
+const mouse = Mouse.create(render.canvas);
+
+const mouseConstraint = MouseConstraint.create(engine, {
+    mouse: mouse,
+    constraint: {
+        stiffness: 0.2,
+        render: {
+            visible: false
+        }
+    }
+});
+
+World.add(world, mouseConstraint);
+
+render.mouse = mouse;
+
+// =========================
+// 창 크기 변경 대응
+// =========================
+
+window.addEventListener("resize", () => {
+
+    render.canvas.width = window.innerWidth;
+    render.canvas.height = window.innerHeight;
+
+    render.options.width = window.innerWidth;
+    render.options.height = window.innerHeight;
+
+});
+
+// =========================
+// 약간 살아있는 듯 흔들리기
+// =========================
+
+setInterval(() => {
+
+    Body.applyForce(body, body.position, {
+        x: (Math.random() - 0.5) * 0.002,
+        y: 0
+    });
+
+}, 1000);
