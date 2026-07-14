@@ -265,3 +265,211 @@ setInterval(() => {
     });
 
 }, 1000);
+
+
+// =========================
+// 랜덤하게 걷기
+// =========================
+
+let direction = 1;
+
+setInterval(() => {
+
+    // 가끔 방향 바꾸기
+    if (Math.random() < 0.3) {
+        direction *= -1;
+    }
+
+    // 몸통 밀기
+    Body.applyForce(body, body.position, {
+        x: 0.01 * direction,
+        y: 0
+    });
+
+    // 다리 움직이기
+    Body.applyForce(leftLeg, leftLeg.position, {
+        x: 0.002 * direction,
+        y: -0.004
+    });
+
+    Body.applyForce(rightLeg, rightLeg.position, {
+        x: 0.002 * direction,
+        y: 0.004
+    });
+
+    // 팔도 약간 흔들기
+    Body.applyForce(leftArm, leftArm.position, {
+        x: -0.001 * direction,
+        y: 0
+    });
+
+    Body.applyForce(rightArm, rightArm.position, {
+        x: 0.001 * direction,
+        y: 0
+    });
+
+}, 300);
+
+// =========================
+// 넘어지면 일어나려고 버둥거리기
+// =========================
+
+setInterval(() => {
+
+    if (Math.abs(body.angle) > 0.5) {
+
+        Body.applyForce(body, body.position, {
+            x: (Math.random() - 0.5) * 0.03,
+            y: -0.03
+        });
+
+    }
+
+}, 500);
+
+
+// =========================
+// 건드리면 움찔하기
+// =========================
+
+Matter.Events.on(engine, "collisionStart", function(event) {
+
+    event.pairs.forEach(pair => {
+
+        const parts = [
+            head,
+            body,
+            leftArm,
+            rightArm,
+            leftLeg,
+            rightLeg
+        ];
+
+        if (
+            parts.includes(pair.bodyA) ||
+            parts.includes(pair.bodyB)
+        ) {
+
+            // 몸통 움찔
+            Body.applyForce(body, body.position, {
+                x: (Math.random() - 0.5) * 0.04,
+                y: -0.03
+            });
+
+            // 머리 흔들기
+            Body.applyForce(head, head.position, {
+                x: (Math.random() - 0.5) * 0.02,
+                y: -0.02
+            });
+
+            // 팔 버둥거리기
+            Body.applyForce(leftArm, leftArm.position, {
+                x: -0.01,
+                y: -0.01
+            });
+
+            Body.applyForce(rightArm, rightArm.position, {
+                x: 0.01,
+                y: -0.01
+            });
+
+        }
+
+    });
+
+});
+
+
+// =========================
+// 살아있는 행동 AI
+// =========================
+
+let state = "walk";
+let nextAction = Date.now() + 2000;
+
+function randomAction() {
+
+    const r = Math.random();
+
+    if (r < 0.55) {
+        state = "walk";
+    } else if (r < 0.75) {
+        state = "idle";
+    } else if (r < 0.90) {
+        state = "jump";
+    } else {
+        state = "panic";
+    }
+
+    nextAction = Date.now() + 1000 + Math.random() * 3000;
+}
+
+Matter.Events.on(engine, "beforeUpdate", function () {
+
+    if (Date.now() > nextAction) {
+        randomAction();
+    }
+
+    switch (state) {
+
+        case "walk":
+
+            Body.applyForce(body, body.position, {
+                x: 0.003 * direction,
+                y: 0
+            });
+
+            Body.applyForce(leftLeg, leftLeg.position, {
+                x: 0.0015 * direction,
+                y: -0.001
+            });
+
+            Body.applyForce(rightLeg, rightLeg.position, {
+                x: 0.0015 * direction,
+                y: 0.001
+            });
+
+            break;
+
+        case "idle":
+
+            // 가만히 서서 미세하게 흔들림
+            Body.applyForce(body, body.position, {
+                x: (Math.random() - 0.5) * 0.0006,
+                y: 0
+            });
+
+            break;
+
+        case "jump":
+
+            Body.applyForce(body, body.position, {
+                x: 0,
+                y: -0.05
+            });
+
+            state = "walk";
+
+            break;
+
+        case "panic":
+
+            Body.applyForce(body, body.position, {
+                x: (Math.random() - 0.5) * 0.04,
+                y: -0.02
+            });
+
+            Body.applyForce(leftArm, leftArm.position, {
+                x: -0.01,
+                y: -0.01
+            });
+
+            Body.applyForce(rightArm, rightArm.position, {
+                x: 0.01,
+                y: -0.01
+            });
+
+            break;
+    }
+
+});
