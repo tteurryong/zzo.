@@ -12,7 +12,8 @@ const {
     Body,
     Constraint,
     Mouse,
-    MouseConstraint
+    MouseConstraint,
+    Events
 } = Matter;
 
 // 엔진 생성
@@ -324,7 +325,7 @@ setInterval(() => {
 // 건드리면 움찔하기
 // =========================
 
-Matter.Events.on(engine, "collisionStart", function(event) {
+Events.on(engine, "collisionStart", function(event) {
 
     event.pairs.forEach(pair => {
 
@@ -394,9 +395,8 @@ function randomAction() {
     }
 
     nextAction = Date.now() + 1000 + Math.random() * 3000;
-}
 
-Matter.Events.on(engine, "beforeUpdate", function () {
+    Events.on(engine, "beforeUpdate", function () {
 
     if (Date.now() > nextAction) {
         randomAction();
@@ -488,7 +488,7 @@ World.add(world, enemy);
 
 // 적이 플레이어를 따라오기
 
-Matter.Events.on(engine, "beforeUpdate", () => {
+Events.on(engine, "beforeUpdate", () => {
 
     if (enemy.position.x < body.position.x) {
 
